@@ -1,11 +1,9 @@
 ﻿using Microsoft.WindowsAzure.Storage.Table;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace webtestazurefunction.Functions.Entities
+namespace webtestazurefunction.Functions
 {
-    public class Todo : TableEntity
+    public class TodoEntity : TableEntity
     {
         public DateTime CreatedTime { get; set; }
         public string TaskDescription { get; set; }

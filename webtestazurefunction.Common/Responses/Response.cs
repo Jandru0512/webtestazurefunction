@@ -1,4 +1,4 @@
-﻿namespace webtestazurefunction.Common.Responses
+﻿namespace webtestazurefunction.Common
 {
     public class Response
     {

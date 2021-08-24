@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace webtestazurefunction.Common.Models
+namespace webtestazurefunction.Common
 {
     public class Todo
     {
