@@ -20,7 +20,7 @@ namespace webtestazurefunction.Functions
             [Table("todo", Connection = "AzureWebJobsStorage")] CloudTable todoTable,
             ILogger log)
         {
-            log.LogInformation("Recived a new todo.");
+            log.LogInformation("Received a new todo.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             Todo todo = JsonConvert.DeserializeObject<Todo>(requestBody);
@@ -65,7 +65,7 @@ namespace webtestazurefunction.Functions
             string id,
             ILogger log)
         {
-            log.LogInformation($"Update for todo: {id}, recived.");
+            log.LogInformation($"Update for todo: {id}, received.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             Todo todo = JsonConvert.DeserializeObject<Todo>(requestBody);
@@ -95,6 +95,58 @@ namespace webtestazurefunction.Functions
             await todoTable.ExecuteAsync(updateOperation);
 
             string message = $"Todo: {id} updated in table.";
+            log.LogInformation(message);
+
+            return new OkObjectResult(new Response
+            {
+                IsSuccess = true,
+                Message = message,
+                Result = todoEntity
+            });
+        }
+
+        [FunctionName(nameof(GetAllTodos))]
+        public static async Task<IActionResult> GetAllTodos(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "todo")] HttpRequest req,
+            [Table("todo", Connection = "AzureWebJobsStorage")] CloudTable todoTable,
+            ILogger log)
+        {
+            log.LogInformation("Get all todos received.");
+
+            TableQuery<TodoEntity> query = new TableQuery<TodoEntity>();
+            TableQuerySegment<TodoEntity> todos = await todoTable.ExecuteQuerySegmentedAsync(query, null);
+
+            string message = "Retrieved all todos.";
+            log.LogInformation(message);
+
+            return new OkObjectResult(new Response
+            {
+                IsSuccess = true,
+                Message = message,
+                Result = todos
+            });
+        }
+
+
+        [FunctionName(nameof(GetTodoById))]
+        public static IActionResult GetTodoById(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "todo/{id}")] HttpRequest req,
+            [Table("todo", "TODO", "{id}", Connection = "AzureWebJobsStorage")] TodoEntity todoEntity,
+            string id,
+            ILogger log)
+        {
+            log.LogInformation($"Get todo by id: {id}, received.");
+
+            if (todoEntity == null)
+            {
+                return new BadRequestObjectResult(new Response
+                {
+                    IsSuccess = false,
+                    Message = "Todo not found."
+                });
+            }
+
+            string message = $"Todo {id}, retrieved.";
             log.LogInformation(message);
 
             return new OkObjectResult(new Response
